@@ -79,6 +79,10 @@
   }
 
   .left__title {
-    font-size: 2rem;
+    font-size: 3.5rem;
+  }
+
+  .left__desc {
+    text-align: left;
   }
 }
