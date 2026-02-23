@@ -5,7 +5,8 @@ namespace muten.Core;
 
 public record ManagedApp
 {
-    public string ExePath { get; set; } = string.Empty;
+    public string ProcessName { get; set; } = string.Empty;
+    public string? ExePath { get; set; }
     public string DisplayName { get; set; } = string.Empty;
 }
 
@@ -40,7 +41,7 @@ public static class SettingsManager
             var doc = JsonNode.Parse(json);
             if (doc is null) return new MutenSettings();
 
-            // Detect old format: managedApps is a list of strings
+            // Migration: managedApps is a list of plain strings (oldest format)
             var managedApps = doc["managedApps"];
             if (managedApps is JsonArray arr && arr.Count > 0 && arr[0] is JsonValue)
             {
@@ -50,16 +51,34 @@ public static class SettingsManager
                     ManagedApps = arr
                         .Select(item => item?.GetValue<string>() ?? "")
                         .Where(s => !string.IsNullOrEmpty(s))
-                        .Select(name => new ManagedApp { ExePath = name, DisplayName = name })
+                        .Select(path => new ManagedApp
+                        {
+                            ProcessName = Path.GetFileNameWithoutExtension(path),
+                            ExePath = path,
+                            DisplayName = Path.GetFileNameWithoutExtension(path),
+                        })
                         .ToList(),
                 };
 
-                // Re-save in new format
                 Save(migrated);
                 return migrated;
             }
 
-            return JsonSerializer.Deserialize<MutenSettings>(json, JsonOptions) ?? new MutenSettings();
+            var settings = JsonSerializer.Deserialize<MutenSettings>(json, JsonOptions) ?? new MutenSettings();
+
+            // Migration: exePath-keyed entries that lack processName
+            bool needsSave = false;
+            foreach (var app in settings.ManagedApps)
+            {
+                if (string.IsNullOrEmpty(app.ProcessName) && !string.IsNullOrEmpty(app.ExePath))
+                {
+                    app.ProcessName = Path.GetFileNameWithoutExtension(app.ExePath);
+                    needsSave = true;
+                }
+            }
+
+            if (needsSave) Save(settings);
+            return settings;
         }
         catch
         {

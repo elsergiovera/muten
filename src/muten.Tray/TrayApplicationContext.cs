@@ -63,7 +63,7 @@ public class TrayApplicationContext : ApplicationContext
         menu.Items.Clear();
 
         var sessions = _manager.GetSessions()
-            .Where(s => s.IsActive || _autoMute.IsManaged(s.ExecutablePath))
+            .Where(s => s.IsActive || _autoMute.IsManaged(s.ProcessName))
             .ToList();
 
         if (sessions.Count == 0)
@@ -74,7 +74,7 @@ public class TrayApplicationContext : ApplicationContext
         {
             foreach (var session in sessions)
             {
-                var isManaged = _autoMute.IsManaged(session.ExecutablePath);
+                var isManaged = _autoMute.IsManaged(session.ProcessName);
 
                 var label = session.IsMuted
                     ? $"{session.DisplayName} (muted)"
@@ -140,13 +140,14 @@ public class TrayApplicationContext : ApplicationContext
 
     private void ToggleManaged(AudioSession session)
     {
-        if (string.IsNullOrEmpty(session.ExecutablePath)) return;
+        if (string.IsNullOrEmpty(session.ProcessName)) return;
 
-        if (_autoMute.IsManaged(session.ExecutablePath))
-            _autoMute.RemoveManagedApp(session.ExecutablePath);
+        if (_autoMute.IsManaged(session.ProcessName))
+            _autoMute.RemoveManagedApp(session.ProcessName);
         else
             _autoMute.AddManagedApp(new ManagedApp
             {
+                ProcessName = session.ProcessName,
                 ExePath = session.ExecutablePath,
                 DisplayName = session.DisplayName,
             });

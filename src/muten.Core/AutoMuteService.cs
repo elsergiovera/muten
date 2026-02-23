@@ -15,31 +15,26 @@ public class AutoMuteService
 
     public IReadOnlyDictionary<string, ManagedApp> ManagedApps => _managedApps;
 
-    public bool IsManaged(string? exePath) =>
-        !string.IsNullOrEmpty(exePath) && _managedApps.ContainsKey(exePath);
+    public bool IsManaged(string? processName) =>
+        !string.IsNullOrEmpty(processName) && _managedApps.ContainsKey(processName);
 
     public void AddManagedApp(ManagedApp app)
     {
-        if (!string.IsNullOrEmpty(app.ExePath))
-            _managedApps[app.ExePath] = app;
+        if (!string.IsNullOrEmpty(app.ProcessName))
+            _managedApps[app.ProcessName] = app;
     }
 
-    public void RemoveManagedApp(string? exePath)
+    public void RemoveManagedApp(string? processName)
     {
-        if (string.IsNullOrEmpty(exePath)) return;
+        if (string.IsNullOrEmpty(processName)) return;
 
-        if (_managedApps.Remove(exePath, out var app))
+        if (_managedApps.Remove(processName))
         {
-            // Find process name for this app to unmute by name
-            var processName = GetProcessNameFromPath(app.ExePath);
-            if (processName != null)
+            if (_savedVolumes.Remove(processName, out var volume))
             {
-                if (_savedVolumes.Remove(exePath, out var volume))
-                {
-                    _manager.SetVolumeByName(processName, volume);
-                }
-                _manager.UnmuteByName(processName);
+                _manager.SetVolumeByName(processName, volume);
             }
+            _manager.UnmuteByName(processName);
         }
     }
 
@@ -47,21 +42,16 @@ public class AutoMuteService
     {
         if (!Enabled) return;
 
-        foreach (var (exePath, app) in _managedApps)
+        foreach (var (processName, app) in _managedApps)
         {
-            var processName = GetProcessNameFromPath(exePath);
-            if (processName is null) continue;
-
-            bool isForeground = foregroundExePath != null
-                ? exePath.Equals(foregroundExePath, StringComparison.OrdinalIgnoreCase)
-                : processName.Equals(foregroundProcess, StringComparison.OrdinalIgnoreCase);
+            bool isForeground = processName.Equals(foregroundProcess, StringComparison.OrdinalIgnoreCase);
 
             if (isForeground)
             {
                 // Foreground app — unmute and restore volume
                 _manager.UnmuteByName(processName);
 
-                if (_savedVolumes.Remove(exePath, out var savedVolume))
+                if (_savedVolumes.Remove(processName, out var savedVolume))
                 {
                     _manager.SetVolumeByName(processName, savedVolume);
                 }
@@ -69,7 +59,7 @@ public class AutoMuteService
             else
             {
                 // Background app — save volume and mute
-                if (!_savedVolumes.ContainsKey(exePath))
+                if (!_savedVolumes.ContainsKey(processName))
                 {
                     var sessions = _manager.GetSessions();
                     var session = sessions.FirstOrDefault(s =>
@@ -77,7 +67,7 @@ public class AutoMuteService
 
                     if (session != null)
                     {
-                        _savedVolumes[exePath] = session.Volume;
+                        _savedVolumes[processName] = session.Volume;
                     }
                 }
 
@@ -88,14 +78,11 @@ public class AutoMuteService
 
     public void RestoreAll()
     {
-        foreach (var (exePath, app) in _managedApps)
+        foreach (var (processName, app) in _managedApps)
         {
-            var processName = GetProcessNameFromPath(exePath);
-            if (processName is null) continue;
-
             _manager.UnmuteByName(processName);
 
-            if (_savedVolumes.TryGetValue(exePath, out var volume))
+            if (_savedVolumes.TryGetValue(processName, out var volume))
             {
                 _manager.SetVolumeByName(processName, volume);
             }
@@ -103,7 +90,4 @@ public class AutoMuteService
 
         _savedVolumes.Clear();
     }
-
-    private static string? GetProcessNameFromPath(string exePath) =>
-        Path.GetFileNameWithoutExtension(exePath) is { Length: > 0 } name ? name : null;
 }
