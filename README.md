@@ -1,8 +1,8 @@
-<p align="center">
-  <img src="src/assets/img/logo.png" alt="muten logo" width="120" />
-</p>
-
-<h1 align="center">muten</h1>
+<h1 align="center">
+  <img src="src/assets/img/logo.png" alt="muten logo" width="80" valign="middle" />
+  &nbsp;
+  muten
+</h1>
 
 <p align="center">
   Per-application audio control for Windows.<br/>
