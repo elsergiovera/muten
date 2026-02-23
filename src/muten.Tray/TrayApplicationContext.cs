@@ -28,13 +28,25 @@ public class TrayApplicationContext : ApplicationContext
 
         _notifyIcon = new NotifyIcon
         {
-            Icon = SystemIcons.Application,
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath)!,
             Text = "muten",
             Visible = true,
-            ContextMenuStrip = new ContextMenuStrip(),
+            ContextMenuStrip = new ContextMenuStrip { Items = { "Loading..." } },
         };
 
         _notifyIcon.ContextMenuStrip!.Opening += OnMenuOpening;
+        _notifyIcon.MouseClick += OnTrayClick;
+    }
+
+    private void OnTrayClick(object? sender, MouseEventArgs e)
+    {
+        // Show context menu on any click (left, middle, etc.), not just right-click
+        if (e.Button != MouseButtons.Right)
+        {
+            var mi = typeof(NotifyIcon).GetMethod("ShowContextMenu",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            mi?.Invoke(_notifyIcon, null);
+        }
     }
 
     private void OnForegroundChanged(string processName, int pid)
