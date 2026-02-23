@@ -17,7 +17,9 @@
 
 ## Install
 
-Download `muten.zip` from the latest release, extract anywhere, and run `muten.exe`.
+Download `muten.zip` from the [latest release](https://github.com/elsergiovera/muten/releases/latest), extract anywhere, and run `muten.exe`.
+
+Visit [muten.veraserg.io](https://muten.veraserg.io) for more info.
 
 ## How it Works
 
@@ -64,19 +66,37 @@ build.bat
 
 `build.bat` publishes a self-contained single-file exe and packages it into `muten.zip`.
 
+## Releasing
+
+```bash
+build.bat                          # produces muten.zip
+git add muten.zip
+git commit -m "v1.1.0"
+git tag v1.1.0
+git push && git push --tags        # triggers GitHub Actions
+```
+
+Pushing a `v*` tag creates a GitHub Release with `muten.zip` attached and deploys the site.
+
+Pushing to `main` with changes in `src/www/` deploys the site only (no release).
+
 ## Project Structure
 
 ```
 muten/
 ├── muten.sln
 ├── build.bat                      # Build + zip script
+├── .github/workflows/release.yml  # CI: release + deploy site
 └── src/
+    ├── assets/                   # Shared icons and images
     ├── muten.Core/               # Core library (shared by CLI and Tray)
     ├── muten.Cli/                # Command-line interface
-    └── muten.Tray/               # System tray application
+    ├── muten.Tray/               # System tray application
+    └── www/                      # Landing page (Astro)
 ```
 
 ## Tech Stack
 
 - **C# 12 / .NET 8**
 - **NAudio 2.2.1** — Windows Core Audio API wrapper
+- **Astro** — Landing page at [muten.veraserg.io](https://muten.veraserg.io)
