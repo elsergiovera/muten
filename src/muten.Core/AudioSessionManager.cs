@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using NAudio.CoreAudioApi;
+using NAudio.CoreAudioApi.Interfaces;
 
 namespace muten.Core;
 
@@ -25,10 +26,12 @@ public class AudioSessionManager : IDisposable
             var processId = (int)session.GetProcessID;
 
             string processName;
+            string? exePath = null;
             try
             {
                 var process = Process.GetProcessById(processId);
                 processName = process.ProcessName;
+                try { exePath = process.MainModule?.FileName; } catch { }
             }
             catch
             {
@@ -46,6 +49,8 @@ public class AudioSessionManager : IDisposable
                 DisplayName = displayName,
                 Volume = session.SimpleAudioVolume.Volume,
                 IsMuted = session.SimpleAudioVolume.Mute,
+                IsActive = session.State == AudioSessionState.AudioSessionStateActive,
+                ExecutablePath = exePath,
             });
         }
 

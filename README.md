@@ -12,7 +12,10 @@ muten/
 └── src/
     ├── muten.Core/               # Core library (shared by CLI and Tray)
     │   ├── AudioSession.cs       # Read-only model: PID, Name, Volume, IsMuted
-    │   └── AudioSessionManager.cs# Mute, unmute, volume control via Core Audio API
+    │   ├── AudioSessionManager.cs# Mute, unmute, volume control via Core Audio API
+    │   ├── AutoMuteService.cs    # Auto-mute engine for managed apps
+    │   ├── ForegroundWatcher.cs  # Detects active window changes (WinEventHook)
+    │   └── SettingsManager.cs    # JSON persistence (%APPDATA%/muten/)
     │
     ├── muten.Cli/                # Command-line interface
     │   └── Program.cs            # Entry point & command routing
@@ -43,7 +46,20 @@ dotnet run --project src/muten.Cli -- <command>
 dotnet run --project src/muten.Tray
 ```
 
-This starts a persistent icon in the notification area (next to the clock). Right-click the icon to see active audio sessions — click any session to toggle its mute state. Choose **Quit** to exit.
+This starts a persistent icon in the notification area (next to the clock). Right-click the icon to see active audio sessions. Choose **Quit** to exit.
+
+## Auto-Mute
+
+The tray app can automatically mute apps when they lose focus and unmute them when you switch back.
+
+1. Right-click the tray icon
+2. Click an app to **manage** it (a checkmark appears)
+3. Managed apps are only audible when their window is in the foreground
+4. Alt-tab away → the managed app mutes. Alt-tab back → it unmutes at its original volume
+
+Use **Pause auto-mute** / **Resume auto-mute** in the menu to temporarily disable the feature.
+
+Your managed app selections are saved to `%APPDATA%/muten/settings.json` and persist across restarts.
 
 ## Commands
 

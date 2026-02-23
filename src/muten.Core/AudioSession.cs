@@ -7,4 +7,6 @@ public class AudioSession
     public string DisplayName { get; init; } = string.Empty;
     public float Volume { get; init; }
     public bool IsMuted { get; init; }
+    public bool IsActive { get; init; }
+    public string? ExecutablePath { get; init; }
 }
