@@ -10,15 +10,19 @@ muten wraps the Windows Core Audio API (via [NAudio](https://github.com/naudio/N
 muten/
 ├── muten.sln
 └── src/
-    ├── muten.Core/               # Core library (reusable by future UI)
+    ├── muten.Core/               # Core library (shared by CLI and Tray)
     │   ├── AudioSession.cs       # Read-only model: PID, Name, Volume, IsMuted
     │   └── AudioSessionManager.cs# Mute, unmute, volume control via Core Audio API
     │
-    └── muten.Cli/                # Command-line interface
-        └── Program.cs            # Entry point & command routing
+    ├── muten.Cli/                # Command-line interface
+    │   └── Program.cs            # Entry point & command routing
+    │
+    └── muten.Tray/               # System tray application
+        ├── Program.cs            # Entry point (WinForms message loop)
+        └── TrayApplicationContext.cs # NotifyIcon, context menu, toggle mute
 ```
 
-`muten.Core` holds all the audio logic and is deliberately separated from the CLI so a UI can be built on top of the same library later.
+`muten.Core` holds all the audio logic and is shared by both the CLI and the Tray app.
 
 ## Requirements
 
@@ -27,9 +31,19 @@ muten/
 
 ## Build & Run
 
+### CLI (one-shot commands)
+
 ```bash
-dotnet run --project src/Muten.Cli -- <command>
+dotnet run --project src/muten.Cli -- <command>
 ```
+
+### System Tray
+
+```bash
+dotnet run --project src/muten.Tray
+```
+
+This starts a persistent icon in the notification area (next to the clock). Right-click the icon to see active audio sessions — click any session to toggle its mute state. Choose **Quit** to exit.
 
 ## Commands
 

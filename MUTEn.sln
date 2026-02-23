@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "muten.Core", "src\muten.Cor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "muten.Cli", "src\muten.Cli\muten.Cli.csproj", "{3FE8C841-B8C1-4D4E-9036-97093D715144}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "muten.Tray", "src\muten.Tray\muten.Tray.csproj", "{232D07BD-121A-44B2-A722-0CB7704B8332}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,9 +28,14 @@ Global
 		{3FE8C841-B8C1-4D4E-9036-97093D715144}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3FE8C841-B8C1-4D4E-9036-97093D715144}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3FE8C841-B8C1-4D4E-9036-97093D715144}.Release|Any CPU.Build.0 = Release|Any CPU
+		{232D07BD-121A-44B2-A722-0CB7704B8332}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{232D07BD-121A-44B2-A722-0CB7704B8332}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{232D07BD-121A-44B2-A722-0CB7704B8332}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{232D07BD-121A-44B2-A722-0CB7704B8332}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3AD0AF0D-17AF-40EF-AE67-7F5B7A2FACFA} = {43BF8342-332E-44E2-A9E0-D7F341CD232A}
 		{3FE8C841-B8C1-4D4E-9036-97093D715144} = {43BF8342-332E-44E2-A9E0-D7F341CD232A}
+		{232D07BD-121A-44B2-A722-0CB7704B8332} = {43BF8342-332E-44E2-A9E0-D7F341CD232A}
 	EndGlobalSection
 EndGlobal
