@@ -5,7 +5,7 @@ namespace muten.Core;
 
 public class ForegroundWatcher : IDisposable
 {
-    public event Action<string, int>? ForegroundChanged;
+    public event Action<string, int, string?>? ForegroundChanged;
 
     private delegate void WinEventDelegate(
         IntPtr hWinEventHook, uint eventType, IntPtr hwnd,
@@ -46,7 +46,9 @@ public class ForegroundWatcher : IDisposable
             if (pid == 0) return;
 
             var process = Process.GetProcessById((int)pid);
-            ForegroundChanged?.Invoke(process.ProcessName, (int)pid);
+            string? exePath = null;
+            try { exePath = process.MainModule?.FileName; } catch { }
+            ForegroundChanged?.Invoke(process.ProcessName, (int)pid, exePath);
         }
         catch
         {

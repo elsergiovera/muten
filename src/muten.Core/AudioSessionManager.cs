@@ -27,20 +27,39 @@ public class AudioSessionManager : IDisposable
 
             string processName;
             string? exePath = null;
+            string? windowTitle = null;
             try
             {
                 var process = Process.GetProcessById(processId);
                 processName = process.ProcessName;
                 try { exePath = process.MainModule?.FileName; } catch { }
+                var title = process.MainWindowTitle;
+                if (!string.IsNullOrWhiteSpace(title)) windowTitle = title;
             }
             catch
             {
                 processName = processId == 0 ? "System Sounds" : "Unknown";
             }
 
-            var displayName = !string.IsNullOrWhiteSpace(session.DisplayName)
-                ? session.DisplayName
-                : processName;
+            // Friendly name fallback chain: WindowTitle → ProductName → FileDescription → session.DisplayName → ProcessName
+            string? friendlyName = windowTitle;
+            if (string.IsNullOrWhiteSpace(friendlyName) && !string.IsNullOrEmpty(exePath))
+            {
+                try
+                {
+                    var versionInfo = FileVersionInfo.GetVersionInfo(exePath);
+                    friendlyName = versionInfo.ProductName;
+                    if (string.IsNullOrWhiteSpace(friendlyName) || friendlyName == processName)
+                        friendlyName = versionInfo.FileDescription;
+                }
+                catch { }
+            }
+
+            var displayName = !string.IsNullOrWhiteSpace(friendlyName) && friendlyName != processName
+                ? friendlyName
+                : !string.IsNullOrWhiteSpace(session.DisplayName)
+                    ? session.DisplayName
+                    : processName;
 
             result.Add(new AudioSession
             {

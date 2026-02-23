@@ -5,7 +5,7 @@ set "publishDir=src\muten.Tray\bin\Release\net8.0-windows\win-x64\publish"
 set "zipPath=muten.zip"
 
 echo Publishing muten.Tray...
-dotnet publish src\muten.Tray -c Release -r win-x64 --self-contained -p:PublishSingleFile=true
+dotnet publish src\muten.Tray -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o "%publishDir%"
 if %errorlevel% neq 0 (
     echo Publish failed
     exit /b 1

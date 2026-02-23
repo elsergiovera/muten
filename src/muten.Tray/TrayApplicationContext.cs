@@ -37,6 +37,8 @@ public class TrayApplicationContext : ApplicationContext
 
         _notifyIcon.ContextMenuStrip!.Opening += OnMenuOpening;
         _notifyIcon.MouseClick += OnTrayClick;
+
+        StartupToast.Show("Muten is running in the background.");
     }
 
     private void OnTrayClick(object? sender, MouseEventArgs e)
@@ -50,9 +52,9 @@ public class TrayApplicationContext : ApplicationContext
         }
     }
 
-    private void OnForegroundChanged(string processName, int pid)
+    private void OnForegroundChanged(string processName, int pid, string? exePath)
     {
-        _autoMute.OnForegroundChanged(processName);
+        _autoMute.OnForegroundChanged(processName, exePath);
     }
 
     private void OnMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -61,7 +63,7 @@ public class TrayApplicationContext : ApplicationContext
         menu.Items.Clear();
 
         var sessions = _manager.GetSessions()
-            .Where(s => s.IsActive || _autoMute.IsManaged(s.ProcessName))
+            .Where(s => s.IsActive || _autoMute.IsManaged(s.ExecutablePath))
             .ToList();
 
         if (sessions.Count == 0)
@@ -72,12 +74,11 @@ public class TrayApplicationContext : ApplicationContext
         {
             foreach (var session in sessions)
             {
-                var name = session.ProcessName;
-                var isManaged = _autoMute.IsManaged(name);
+                var isManaged = _autoMute.IsManaged(session.ExecutablePath);
 
                 var label = session.IsMuted
-                    ? $"{name} (muted)"
-                    : $"{name} ({session.Volume * 100:F0}%)";
+                    ? $"{session.DisplayName} (muted)"
+                    : $"{session.DisplayName} ({session.Volume * 100:F0}%)";
 
                 var item = new ToolStripMenuItem(label)
                 {
@@ -87,9 +88,11 @@ public class TrayApplicationContext : ApplicationContext
                 };
 
                 if (isManaged)
-                    item.BackColor = Color.FromArgb(220, 235, 252);
+                    item.BackColor = session.IsMuted
+                        ? Color.FromArgb(245, 173, 173)
+                        : Color.FromArgb(250, 214, 214);
 
-                item.Click += (_, _) => ToggleManaged(name);
+                item.Click += (_, _) => ToggleManaged(session);
                 menu.Items.Add(item);
             }
         }
@@ -135,12 +138,18 @@ public class TrayApplicationContext : ApplicationContext
         }
     }
 
-    private void ToggleManaged(string processName)
+    private void ToggleManaged(AudioSession session)
     {
-        if (_autoMute.IsManaged(processName))
-            _autoMute.RemoveManagedApp(processName);
+        if (string.IsNullOrEmpty(session.ExecutablePath)) return;
+
+        if (_autoMute.IsManaged(session.ExecutablePath))
+            _autoMute.RemoveManagedApp(session.ExecutablePath);
         else
-            _autoMute.AddManagedApp(processName);
+            _autoMute.AddManagedApp(new ManagedApp
+            {
+                ExePath = session.ExecutablePath,
+                DisplayName = session.DisplayName,
+            });
 
         SaveSettings();
     }
@@ -161,7 +170,7 @@ public class TrayApplicationContext : ApplicationContext
     {
         _settings = new MutenSettings
         {
-            ManagedApps = _autoMute.ManagedApps.ToList(),
+            ManagedApps = _autoMute.ManagedApps.Values.ToList(),
             AutoMuteEnabled = _autoMute.Enabled,
         };
 
