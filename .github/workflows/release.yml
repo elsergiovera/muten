@@ -32,6 +32,8 @@ jobs:
           files: muten.zip
 
   deploy-site:
+    if: github.ref == 'refs/heads/main' # skip site deploy on tag pushes
+
     runs-on: ubuntu-latest
     environment:
       name: github-pages

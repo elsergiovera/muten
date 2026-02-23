@@ -11,7 +11,7 @@
 
 ## Features
 
-- **Auto-mute** — managed apps only play sound when their window is active
+- **Auto-mute** — **mutened** apps only play sound when their window is active
 - **Start with Windows** — optional, toggle from the tray menu
 - Settings saved to `%APPDATA%\muten\settings.json`
 
@@ -28,9 +28,9 @@ Visit [muten.veraserg.io](https://muten.veraserg.io) for more info.
 </p>
 
 1. Click the tray icon to see audio sessions
-2. Click an app to **manage** it (highlighted)
-3. Managed apps are only audible when their window is in the foreground
-4. Alt-tab away → the managed app mutes. Alt-tab back → it unmutes
+2. Click an app to **muten** it (highlighted)
+3. **Mutened** apps are only audible when their window is in the foreground
+4. Alt-tab away → the **mutened** app mutes. Alt-tab back → it unmutes
 
 Use **Pause auto-mute** / **Resume auto-mute** in the menu to temporarily disable the feature.
 

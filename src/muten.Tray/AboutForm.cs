@@ -45,8 +45,8 @@ public class AboutForm : Form
         var steps = new[]
         {
             "Click the tray icon to see audio sessions",
-            "Click an app to manage it",
-            "Managed apps mute on focus loss",
+            "Click an app to muten it",
+            "Mutened apps mute when inactive",
             "Switch back to unmute",
         };
 
