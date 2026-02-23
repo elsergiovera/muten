@@ -19,8 +19,6 @@
 
 Download `muten.zip` from the [latest release](https://github.com/elsergiovera/muten/releases/latest), extract anywhere, and run `muten.exe`.
 
-Visit [muten.veraserg.io](https://muten.veraserg.io) for more info.
-
 ## How it Works
 
 <p align="center">
@@ -29,7 +27,7 @@ Visit [muten.veraserg.io](https://muten.veraserg.io) for more info.
 
 1. Click the tray icon to see audio sessions
 2. Click an app to **muten** it (highlighted)
-3. **Mutened** apps are only audible when their window is in the foreground
+3. **Mutened** apps are only audible when their window is active
 4. Alt-tab away → the **mutened** app mutes. Alt-tab back → it unmutes
 
 Use **Pause auto-mute** / **Resume auto-mute** in the menu to temporarily disable the feature.
