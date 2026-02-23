@@ -1,0 +1,48 @@
+:root {
+  --bg: #0e0e0e;
+  --surface: #1a1a1a;
+  --gold: #c8a84e;
+  --gold-hover: #d4b85e;
+  --red: #cc3333;
+  --text: #f0f0f0;
+  --text-secondary: #888888;
+  --border: #2a2a2a;
+  --radius: 10px;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: var(--gold);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--gold-hover);
+}
