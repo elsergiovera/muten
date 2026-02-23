@@ -80,12 +80,15 @@
 .left__cta {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
+  min-width: 10rem;
   background: var(--gold);
   color: var(--bg);
   font-weight: 600;
   font-size: 1.1rem;
   padding: 0.8rem 2rem;
+  border: 1px solid transparent;
   border-radius: var(--radius);
   transition: background 0.2s, border-color 0.2s;
 }
@@ -98,11 +101,11 @@
 .left__cta--secondary {
   background: transparent;
   color: var(--text);
-  border: 1px solid var(--border);
+  border: 1px solid color-mix(in srgb, var(--gold) 50%, transparent);
 }
 
 .left__cta--secondary:hover {
-  background: var(--surface);
+  background: color-mix(in srgb, var(--gold) 10%, transparent);
   color: var(--text);
-  border-color: var(--text-secondary);
+  border-color: var(--gold);
 }
