@@ -1,4 +1,5 @@
 using System.Drawing;
+using Microsoft.Win32;
 using muten.Core;
 
 namespace muten.Tray;
@@ -97,6 +98,14 @@ public class TrayApplicationContext : ApplicationContext
         pauseItem.Click += (_, _) => TogglePause();
         menu.Items.Add(pauseItem);
 
+        var startupItem = new ToolStripMenuItem("Start with Windows")
+        {
+            Checked = IsStartupEnabled(),
+            CheckOnClick = false,
+        };
+        startupItem.Click += (_, _) => ToggleStartup();
+        menu.Items.Add(startupItem);
+
         menu.Items.Add(new ToolStripSeparator());
 
         var quit = new ToolStripMenuItem("Quit");
@@ -150,6 +159,29 @@ public class TrayApplicationContext : ApplicationContext
         };
 
         SettingsManager.Save(_settings);
+    }
+
+    private const string StartupRegistryKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
+    private const string StartupValueName = "muten";
+
+    private static bool IsStartupEnabled()
+    {
+        using var key = Registry.CurrentUser.OpenSubKey(StartupRegistryKey, false);
+        return key?.GetValue(StartupValueName) is not null;
+    }
+
+    private static void ToggleStartup()
+    {
+        using var key = Registry.CurrentUser.OpenSubKey(StartupRegistryKey, true)!;
+        if (key.GetValue(StartupValueName) is not null)
+        {
+            key.DeleteValue(StartupValueName);
+        }
+        else
+        {
+            var exePath = Application.ExecutablePath;
+            key.SetValue(StartupValueName, $"\"{exePath}\"");
+        }
     }
 
     private void Exit()

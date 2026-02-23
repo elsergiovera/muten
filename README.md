@@ -48,6 +48,14 @@ dotnet run --project src/muten.Tray
 
 This starts a persistent icon in the notification area (next to the clock). Right-click the icon to see active audio sessions. Choose **Quit** to exit.
 
+### Release Build (zip)
+
+```
+build.bat
+```
+
+This publishes muten.Tray as a self-contained single-file exe and packages it into `muten.zip`. Extract anywhere and run `muten.exe`.
+
 ## Auto-Mute
 
 The tray app can automatically mute apps when they lose focus and unmute them when you switch back.
