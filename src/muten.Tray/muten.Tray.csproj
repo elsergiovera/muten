@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
-    <ApplicationIcon>..\icon.ico</ApplicationIcon>
+    <ApplicationIcon>..\assets\ico\icon.ico</ApplicationIcon>
     <AssemblyName>muten</AssemblyName>
     <DebugType>embedded</DebugType>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
@@ -14,6 +14,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\muten.Core\muten.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\assets\img\tray.png" LogicalName="tray.png" />
+    <EmbeddedResource Include="..\assets\ico\icon.png" LogicalName="icon.png" />
+    <EmbeddedResource Include="..\assets\img\logo.png" LogicalName="logo.png" />
+
   </ItemGroup>
 
 </Project>

@@ -1,8 +1,13 @@
-# muten
+<p align="center">
+  <img src="src/assets/img/logo.png" alt="muten logo" width="120" />
+</p>
 
-Per-application audio control for Windows. Automatically mute apps when they lose focus and unmute them when you switch back.
+<h1 align="center">muten</h1>
 
-muten wraps the Windows Core Audio API (via [NAudio](https://github.com/naudio/NAudio)) and lives in your system tray.
+<p align="center">
+  Per-application audio control for Windows.<br/>
+  Automatically mute apps when they lose focus and unmute them when you switch back.
+</p>
 
 ## Features
 
@@ -14,12 +19,16 @@ muten wraps the Windows Core Audio API (via [NAudio](https://github.com/naudio/N
 
 Download `muten.zip` from the latest release, extract anywhere, and run `muten.exe`.
 
-## Auto-Mute
+## How it Works
 
-1. Right-click the tray icon
-2. Click an app to **manage** it (a checkmark appears)
+<p align="center">
+  <img src="src/assets/img/tray.png" alt="tray menu" />
+</p>
+
+1. Click the tray icon to see audio sessions
+2. Click an app to **manage** it (highlighted)
 3. Managed apps are only audible when their window is in the foreground
-4. Alt-tab away → the managed app mutes. Alt-tab back → it unmutes at its original volume
+4. Alt-tab away → the managed app mutes. Alt-tab back → it unmutes
 
 Use **Pause auto-mute** / **Resume auto-mute** in the menu to temporarily disable the feature.
 

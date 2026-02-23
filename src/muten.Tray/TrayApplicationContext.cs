@@ -86,6 +86,9 @@ public class TrayApplicationContext : ApplicationContext
                     Image = GetProcessIcon(session.ExecutablePath),
                 };
 
+                if (isManaged)
+                    item.BackColor = Color.FromArgb(220, 235, 252);
+
                 item.Click += (_, _) => ToggleManaged(name);
                 menu.Items.Add(item);
             }
@@ -105,6 +108,10 @@ public class TrayApplicationContext : ApplicationContext
         };
         startupItem.Click += (_, _) => ToggleStartup();
         menu.Items.Add(startupItem);
+
+        var helpItem = new ToolStripMenuItem("About");
+        helpItem.Click += (_, _) => ShowHelp();
+        menu.Items.Add(helpItem);
 
         menu.Items.Add(new ToolStripSeparator());
 
@@ -182,6 +189,12 @@ public class TrayApplicationContext : ApplicationContext
             var exePath = Application.ExecutablePath;
             key.SetValue(StartupValueName, $"\"{exePath}\"");
         }
+    }
+
+    private static void ShowHelp()
+    {
+        using var form = new AboutForm();
+        form.ShowDialog();
     }
 
     private void Exit()

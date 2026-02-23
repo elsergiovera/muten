@@ -9,7 +9,7 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <ApplicationIcon>..\icon.ico</ApplicationIcon>
+    <ApplicationIcon>..\assets\ico\icon.ico</ApplicationIcon>
   </PropertyGroup>
 
 </Project>
