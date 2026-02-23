@@ -1,25 +1,34 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.5.002.0
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MUTEn", "MUTEn.csproj", "{ACC9C991-DF0F-41B4-9183-125801056BEA}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{43BF8342-332E-44E2-A9E0-D7F341CD232A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "muten.Core", "src\muten.Core\muten.Core.csproj", "{3AD0AF0D-17AF-40EF-AE67-7F5B7A2FACFA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "muten.Cli", "src\muten.Cli\muten.Cli.csproj", "{3FE8C841-B8C1-4D4E-9036-97093D715144}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{ACC9C991-DF0F-41B4-9183-125801056BEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ACC9C991-DF0F-41B4-9183-125801056BEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ACC9C991-DF0F-41B4-9183-125801056BEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ACC9C991-DF0F-41B4-9183-125801056BEA}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {DD435A1F-F81B-472B-950B-5E777998D319}
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3AD0AF0D-17AF-40EF-AE67-7F5B7A2FACFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AD0AF0D-17AF-40EF-AE67-7F5B7A2FACFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AD0AF0D-17AF-40EF-AE67-7F5B7A2FACFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AD0AF0D-17AF-40EF-AE67-7F5B7A2FACFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FE8C841-B8C1-4D4E-9036-97093D715144}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FE8C841-B8C1-4D4E-9036-97093D715144}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FE8C841-B8C1-4D4E-9036-97093D715144}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FE8C841-B8C1-4D4E-9036-97093D715144}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3AD0AF0D-17AF-40EF-AE67-7F5B7A2FACFA} = {43BF8342-332E-44E2-A9E0-D7F341CD232A}
+		{3FE8C841-B8C1-4D4E-9036-97093D715144} = {43BF8342-332E-44E2-A9E0-D7F341CD232A}
 	EndGlobalSection
 EndGlobal

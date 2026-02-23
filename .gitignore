@@ -1,5 +1,41 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
 
-# dotnet
-/bin
-/obj
+## NuGet
+**/[Pp]ackages/*
+*.nupkg
+*.snupkg
+**/packages/
+project.lock.json
+project.fragment.lock.json
+
+## Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+launchSettings.json
+
+## Rider
+.idea/
+
+## User-specific files
+*.rsuser
+
+## Build logs
+*.log
+msbuild.*.binlog
+
+## Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+## Claude
+.claude/
