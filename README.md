@@ -5,7 +5,7 @@
 </h1>
 
 <p align="center">
-  Per-application audio control for Windows.<br/>
+  Application audio control for Windows.<br/>
   Automatically mute apps when they lose focus and unmute them when you switch back.
 </p>
 
