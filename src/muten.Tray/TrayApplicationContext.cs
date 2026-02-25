@@ -11,6 +11,7 @@ public class TrayApplicationContext : ApplicationContext
     private readonly AutoMuteService _autoMute;
     private readonly ForegroundWatcher _watcher;
     private MutenSettings _settings;
+    private bool _keepMenuOpen;
 
     public TrayApplicationContext()
     {
@@ -36,6 +37,7 @@ public class TrayApplicationContext : ApplicationContext
         };
 
         _notifyIcon.ContextMenuStrip!.Opening += OnMenuOpening;
+        _notifyIcon.ContextMenuStrip!.Closing += OnMenuClosing;
         _notifyIcon.MouseClick += OnTrayClick;
 
         StartupToast.Show("Muten is running in the background.");
@@ -77,7 +79,7 @@ public class TrayApplicationContext : ApplicationContext
                 var isManaged = _autoMute.IsManaged(session.ProcessName);
 
                 var label = session.IsMuted
-                    ? $"{session.DisplayName} (muted)"
+                    ? $"{session.DisplayName} (muten)"
                     : $"{session.DisplayName} ({session.Volume * 100:F0}%)";
 
                 var item = new ToolStripMenuItem(label)
@@ -92,24 +94,44 @@ public class TrayApplicationContext : ApplicationContext
                         ? Color.FromArgb(245, 173, 173)
                         : Color.FromArgb(250, 214, 214);
 
-                item.Click += (_, _) => ToggleManaged(session);
+                item.MouseDown += (_, _) => _keepMenuOpen = true;
+                item.Click += (_, _) =>
+                {
+                    ToggleManaged(session);
+                    RefreshMenu();
+                };
                 menu.Items.Add(item);
             }
         }
 
         menu.Items.Add(new ToolStripSeparator());
 
-        var pauseLabel = _autoMute.Enabled ? "Pause auto-mute" : "Resume auto-mute";
-        var pauseItem = new ToolStripMenuItem(pauseLabel);
-        pauseItem.Click += (_, _) => TogglePause();
+        var pauseItem = new ToolStripMenuItem("Pause")
+        {
+            Image = LoadEmbeddedImage("speaker_muted.png"),
+        };
+        if (!_autoMute.Enabled)
+            pauseItem.BackColor = Color.FromArgb(214, 234, 250);
+        pauseItem.MouseDown += (_, _) => _keepMenuOpen = true;
+        pauseItem.Click += (_, _) =>
+        {
+            TogglePause();
+            RefreshMenu();
+        };
         menu.Items.Add(pauseItem);
 
         var startupItem = new ToolStripMenuItem("Start with Windows")
         {
-            Checked = IsStartupEnabled(),
-            CheckOnClick = false,
+            Image = LoadEmbeddedImage("startup.png"),
         };
-        startupItem.Click += (_, _) => ToggleStartup();
+        if (IsStartupEnabled())
+            startupItem.BackColor = Color.FromArgb(214, 234, 250);
+        startupItem.MouseDown += (_, _) => _keepMenuOpen = true;
+        startupItem.Click += (_, _) =>
+        {
+            ToggleStartup();
+            RefreshMenu();
+        };
         menu.Items.Add(startupItem);
 
         var helpItem = new ToolStripMenuItem("About");
@@ -121,6 +143,28 @@ public class TrayApplicationContext : ApplicationContext
         var quit = new ToolStripMenuItem("Quit");
         quit.Click += (_, _) => Exit();
         menu.Items.Add(quit);
+    }
+
+    private void OnMenuClosing(object? sender, ToolStripDropDownClosingEventArgs e)
+    {
+        if (_keepMenuOpen && e.CloseReason == ToolStripDropDownCloseReason.ItemClicked)
+        {
+            e.Cancel = true;
+            _keepMenuOpen = false;
+        }
+    }
+
+    private void RefreshMenu()
+    {
+        var menu = _notifyIcon.ContextMenuStrip!;
+        OnMenuOpening(menu, new System.ComponentModel.CancelEventArgs());
+    }
+
+    private static Image? LoadEmbeddedImage(string name)
+    {
+        var asm = typeof(TrayApplicationContext).Assembly;
+        using var stream = asm.GetManifestResourceStream(name);
+        return stream is not null ? Image.FromStream(stream) : null;
     }
 
     private static Bitmap? GetProcessIcon(string? exePath)

@@ -21,7 +21,8 @@
     <EmbeddedResource Include="..\assets\img\tray_about.png" LogicalName="tray.png" />
     <EmbeddedResource Include="..\assets\ico\icon.png" LogicalName="icon.png" />
     <EmbeddedResource Include="..\assets\img\logo.png" LogicalName="logo.png" />
-
+    <EmbeddedResource Include="..\assets\img\speaker_muted.png" LogicalName="speaker_muted.png" />
+    <EmbeddedResource Include="..\assets\img\startup.png" LogicalName="startup.png" />
   </ItemGroup>
 
 </Project>
