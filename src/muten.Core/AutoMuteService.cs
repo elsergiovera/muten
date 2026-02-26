@@ -8,6 +8,8 @@ public class AutoMuteService
 
     public bool Enabled { get; set; } = true;
 
+    public event Action<List<string>>? AppsMuted;
+
     public AutoMuteService(AudioSessionManager manager)
     {
         _manager = manager;
@@ -42,6 +44,8 @@ public class AutoMuteService
     {
         if (!Enabled) return;
 
+        List<string>? newlyMuted = null;
+
         foreach (var (processName, app) in _managedApps)
         {
             bool isForeground = processName.Equals(foregroundProcess, StringComparison.OrdinalIgnoreCase);
@@ -59,7 +63,9 @@ public class AutoMuteService
             else
             {
                 // Background app — save volume and mute
-                if (!_savedVolumes.ContainsKey(processName))
+                bool wasAlreadyMuted = _savedVolumes.ContainsKey(processName);
+
+                if (!wasAlreadyMuted)
                 {
                     var sessions = _manager.GetSessions();
                     var session = sessions.FirstOrDefault(s =>
@@ -68,12 +74,17 @@ public class AutoMuteService
                     if (session != null)
                     {
                         _savedVolumes[processName] = session.Volume;
+                        newlyMuted ??= [];
+                        newlyMuted.Add(app.DisplayName);
                     }
                 }
 
                 _manager.MuteByName(processName);
             }
         }
+
+        if (newlyMuted is { Count: > 0 })
+            AppsMuted?.Invoke(newlyMuted);
     }
 
     public void RestoreAll()

@@ -43,7 +43,7 @@ public class ForegroundWatcher : IDisposable
         try
         {
             GetWindowThreadProcessId(hwnd, out uint pid);
-            if (pid == 0) return;
+            if (pid == 0 || pid == (uint)Environment.ProcessId) return;
 
             var process = Process.GetProcessById((int)pid);
             string? exePath = null;

@@ -24,6 +24,8 @@ public class TrayApplicationContext : ApplicationContext
             _autoMute.AddManagedApp(app);
         }
 
+        _autoMute.AppsMuted += OnAppsMuted;
+
         _watcher = new ForegroundWatcher();
         _watcher.ForegroundChanged += OnForegroundChanged;
         _watcher.Start();
@@ -57,6 +59,13 @@ public class TrayApplicationContext : ApplicationContext
     private void OnForegroundChanged(string processName, int pid, string? exePath)
     {
         _autoMute.OnForegroundChanged(processName, exePath);
+    }
+
+    private void OnAppsMuted(List<string> names)
+    {
+        if (!_settings.NotificationsEnabled || names.Count == 0) return;
+        var text = string.Join(", ", names) + " mutened";
+        _notifyIcon.ContextMenuStrip!.Invoke(() => StartupToast.Show(text));
     }
 
     private void OnMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -133,6 +142,21 @@ public class TrayApplicationContext : ApplicationContext
             RefreshMenu();
         };
         menu.Items.Add(startupItem);
+
+        var notifItem = new ToolStripMenuItem("Notifications")
+        {
+            Image = LoadEmbeddedImage("notification.png"),
+        };
+        if (_settings.NotificationsEnabled)
+            notifItem.BackColor = Color.FromArgb(214, 234, 250);
+        notifItem.MouseDown += (_, _) => _keepMenuOpen = true;
+        notifItem.Click += (_, _) =>
+        {
+            _settings.NotificationsEnabled = !_settings.NotificationsEnabled;
+            SaveSettings();
+            RefreshMenu();
+        };
+        menu.Items.Add(notifItem);
 
         var helpItem = new ToolStripMenuItem("About");
         helpItem.Click += (_, _) => ShowHelp();
@@ -217,6 +241,7 @@ public class TrayApplicationContext : ApplicationContext
         {
             ManagedApps = _autoMute.ManagedApps.Values.ToList(),
             AutoMuteEnabled = _autoMute.Enabled,
+            NotificationsEnabled = _settings.NotificationsEnabled,
         };
 
         SettingsManager.Save(_settings);

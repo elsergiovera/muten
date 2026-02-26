@@ -5,12 +5,29 @@ namespace muten.Tray;
 
 public static class StartupToast
 {
+    private class NoActivateForm : Form
+    {
+        private const int WS_EX_NOACTIVATE = 0x08000000;
+        private const int WS_EX_TOOLWINDOW = 0x00000080;
+
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                var cp = base.CreateParams;
+                cp.ExStyle |= WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW;
+                return cp;
+            }
+        }
+
+        protected override bool ShowWithoutActivation => true;
+    }
     /// <summary>
     /// Shows a toast and returns immediately (non-blocking). The toast fades out on its own.
     /// </summary>
     public static void Show(string message)
     {
-        var toast = new Form
+        var toast = new NoActivateForm
         {
             FormBorderStyle = FormBorderStyle.None,
             StartPosition = FormStartPosition.Manual,
@@ -94,7 +111,7 @@ public static class StartupToast
     /// </summary>
     public static void ShowBlocking(string message)
     {
-        var toast = new Form
+        var toast = new NoActivateForm
         {
             FormBorderStyle = FormBorderStyle.None,
             StartPosition = FormStartPosition.Manual,

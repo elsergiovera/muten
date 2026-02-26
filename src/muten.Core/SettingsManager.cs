@@ -14,6 +14,7 @@ public record MutenSettings
 {
     public List<ManagedApp> ManagedApps { get; set; } = [];
     public bool AutoMuteEnabled { get; set; } = true;
+    public bool NotificationsEnabled { get; set; } = true;
 }
 
 public static class SettingsManager
