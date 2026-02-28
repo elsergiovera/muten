@@ -35,7 +35,11 @@ public class TrayApplicationContext : ApplicationContext
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath)!,
             Text = "muten",
             Visible = true,
-            ContextMenuStrip = new ContextMenuStrip { Items = { "Loading..." } },
+            ContextMenuStrip = new ContextMenuStrip
+            {
+                Items = { "Loading..." },
+                Renderer = new SolidFillRenderer(),
+            },
         };
 
         _notifyIcon.ContextMenuStrip!.Opening += OnMenuOpening;
@@ -99,9 +103,7 @@ public class TrayApplicationContext : ApplicationContext
                 };
 
                 if (isManaged)
-                    item.BackColor = session.IsMuted
-                        ? Color.FromArgb(245, 173, 173)
-                        : Color.FromArgb(250, 214, 214);
+                    item.BackColor = Color.FromArgb(245, 173, 173);
 
                 item.MouseDown += (_, _) => _keepMenuOpen = true;
                 item.Click += (_, _) =>
@@ -298,5 +300,18 @@ public class TrayApplicationContext : ApplicationContext
         }
 
         base.Dispose(disposing);
+    }
+
+    private class SolidFillRenderer : ToolStripProfessionalRenderer
+    {
+        protected override void OnRenderMenuItemBackground(ToolStripItemRenderEventArgs e)
+        {
+            var rect = new Rectangle(Point.Empty, e.Item.Size);
+            var bg = e.Item.BackColor != default && e.Item.BackColor != SystemColors.Control
+                ? e.Item.BackColor
+                : (e.ToolStrip?.BackColor ?? SystemColors.Control);
+            using var brush = new SolidBrush(bg);
+            e.Graphics.FillRectangle(brush, rect);
+        }
     }
 }
