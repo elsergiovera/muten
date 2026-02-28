@@ -17,9 +17,8 @@
 }
 
 .right__img {
-  max-width: 330px;
+  max-width: 305px;
   width: 100%;
-  image-rendering: -webkit-optimize-contrast;
   border-radius: var(--radius);
   border: 1px solid var(--border);
   margin-bottom: 1.5rem;
