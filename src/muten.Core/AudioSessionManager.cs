@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text;
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 
@@ -7,6 +9,33 @@ namespace muten.Core;
 public class AudioSessionManager : IDisposable
 {
     private readonly MMDeviceEnumerator _enumerator;
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern IntPtr OpenProcess(uint dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool CloseHandle(IntPtr hObject);
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    private static extern bool QueryFullProcessImageName(IntPtr hProcess, uint dwFlags, StringBuilder lpExeName, ref int lpdwSize);
+
+    private const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
+
+    private static string? GetProcessExePath(int processId)
+    {
+        var handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, processId);
+        if (handle == IntPtr.Zero) return null;
+        try
+        {
+            var sb = new StringBuilder(1024);
+            int size = sb.Capacity;
+            return QueryFullProcessImageName(handle, 0, sb, ref size) ? sb.ToString() : null;
+        }
+        finally
+        {
+            CloseHandle(handle);
+        }
+    }
 
     public AudioSessionManager()
     {
@@ -33,6 +62,8 @@ public class AudioSessionManager : IDisposable
                 var process = Process.GetProcessById(processId);
                 processName = process.ProcessName;
                 try { exePath = process.MainModule?.FileName; } catch { }
+                if (string.IsNullOrEmpty(exePath))
+                    exePath = GetProcessExePath(processId);
                 var title = process.MainWindowTitle;
                 if (!string.IsNullOrWhiteSpace(title)) windowTitle = title;
             }
