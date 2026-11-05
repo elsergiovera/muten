@@ -39,6 +39,7 @@ msbuild.*.binlog
 
 ## Claude
 .claude/
+AGENTS.md
 
 ## macOS
 *.DS_Store

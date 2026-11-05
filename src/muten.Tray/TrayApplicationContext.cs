@@ -10,6 +10,7 @@ public class TrayApplicationContext : ApplicationContext
     private readonly AudioSessionManager _manager;
     private readonly AutoMuteService _autoMute;
     private readonly ForegroundWatcher _watcher;
+    private readonly SynchronizationContext _uiContext;
     private MutenSettings _settings;
     private bool _keepMenuOpen;
 
@@ -46,6 +47,9 @@ public class TrayApplicationContext : ApplicationContext
         _notifyIcon.ContextMenuStrip!.Closing += OnMenuClosing;
         _notifyIcon.MouseClick += OnTrayClick;
 
+        // Creating the menu installed the WinForms context; it works before any window handle exists
+        _uiContext = SynchronizationContext.Current!;
+
         StartupToast.Show("Muten is running in the background.");
     }
 
@@ -69,7 +73,7 @@ public class TrayApplicationContext : ApplicationContext
     {
         if (!_settings.NotificationsEnabled || names.Count == 0) return;
         var text = string.Join(", ", names) + " mutened";
-        _notifyIcon.ContextMenuStrip!.Invoke(() => StartupToast.Show(text));
+        _uiContext.Post(_ => StartupToast.Show(text), null);
     }
 
     private void OnMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
