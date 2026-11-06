@@ -36,6 +36,21 @@ Download `muten.zip` from the [latest release](https://github.com/elsergiovera/m
 
 Use **Pause** / **Resume** in the menu (or the pause key) to temporarily disable auto-mute. Open **Settings** to set each app's background volume and tune fade, wait and notifications.
 
+## Settings
+
+Open **Settings** from the tray menu:
+
+| Setting | What it does |
+|---|---|
+| **Apps** | The **mutened** apps. Add one with **+ Add** (pick a running app or browse for an `.exe`) and set its **volume in the background** (0% = fully muted) |
+| **Fade** | How the volume changes when you switch windows: Off, Short or Long |
+| **Wait** | A short delay before muting (Off, 0.3 s, 0.6 s, 1 s), so quick alt-tabs and pop-ups don't cut the sound |
+| **Notifications** | Show a small toast when an app gets **mutened** |
+| **Start with Windows** | Launch muten when you sign in |
+| **Pause key** | Global shortcut to pause / resume auto-mute (default `Ctrl+Alt+M`) |
+
+muten also checks GitHub for a newer release; when there is one, **Install** in the menu updates and restarts it.
+
 ## CLI
 
 A companion CLI is included for one-shot commands:
