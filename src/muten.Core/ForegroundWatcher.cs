@@ -7,6 +7,9 @@ public class ForegroundWatcher : IDisposable
 {
     public event Action<string, int, string?>? ForegroundChanged;
 
+    // Process owning the foreground window (muten's own windows are ignored)
+    public string? CurrentProcessName { get; private set; }
+
     private delegate void WinEventDelegate(
         IntPtr hWinEventHook, uint eventType, IntPtr hwnd,
         int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
@@ -22,6 +25,9 @@ public class ForegroundWatcher : IDisposable
     [DllImport("user32.dll")]
     private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetForegroundWindow();
+
     private const uint EVENT_SYSTEM_FOREGROUND = 0x0003;
     private const uint WINEVENT_OUTOFCONTEXT = 0x0000;
 
@@ -30,10 +36,30 @@ public class ForegroundWatcher : IDisposable
 
     public void Start()
     {
+        try
+        {
+            if (TryGetProcess(GetForegroundWindow(), out var process))
+                CurrentProcessName = process.ProcessName;
+        }
+        catch
+        {
+            // Foreground process exited while starting
+        }
+
         _callback = OnWinEvent;
         _hook = SetWinEventHook(
             EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND,
             IntPtr.Zero, _callback, 0, 0, WINEVENT_OUTOFCONTEXT);
+    }
+
+    private static bool TryGetProcess(IntPtr hwnd, out Process process)
+    {
+        process = null!;
+        GetWindowThreadProcessId(hwnd, out uint pid);
+        if (pid == 0 || pid == (uint)Environment.ProcessId) return false;
+
+        process = Process.GetProcessById((int)pid);
+        return true;
     }
 
     private void OnWinEvent(
@@ -42,13 +68,12 @@ public class ForegroundWatcher : IDisposable
     {
         try
         {
-            GetWindowThreadProcessId(hwnd, out uint pid);
-            if (pid == 0 || pid == (uint)Environment.ProcessId) return;
+            if (!TryGetProcess(hwnd, out var process)) return;
 
-            var process = Process.GetProcessById((int)pid);
             string? exePath = null;
             try { exePath = process.MainModule?.FileName; } catch { }
-            ForegroundChanged?.Invoke(process.ProcessName, (int)pid, exePath);
+            CurrentProcessName = process.ProcessName;
+            ForegroundChanged?.Invoke(process.ProcessName, process.Id, exePath);
         }
         catch
         {

@@ -12,7 +12,11 @@
 ## Features
 
 - **Auto-mute** — **mutened** apps only play sound when their window is active
-- **Start with Windows** — optional, toggle from the tray menu
+- **Background volume** — instead of silencing an app, keep it quieter in the background (set per app)
+- **Fade & wait** — smooth volume fades, and a short wait so quick alt-tabs and pop-ups don't cut the sound
+- **Pause key** — pause or resume auto-mute from anywhere (default `Ctrl+Alt+M`)
+- **Settings window** — manage apps (pick a running app or browse for an `.exe`), notifications, Start with Windows
+- **Auto-update** — muten checks GitHub for new releases and installs them in one click
 - Settings saved to `%APPDATA%\muten\settings.json`
 
 ## Install
@@ -30,7 +34,7 @@ Download `muten.zip` from the [latest release](https://github.com/elsergiovera/m
 3. **Mutened** apps are only audible when their window is active
 4. Alt-tab away → the **mutened** app mutes. Alt-tab back → it unmutes
 
-Use **Pause auto-mute** / **Resume auto-mute** in the menu to temporarily disable the feature.
+Use **Pause** / **Resume** in the menu (or the pause key) to temporarily disable auto-mute. Open **Settings** to set each app's background volume and tune fade, wait and notifications.
 
 ## CLI
 
@@ -67,10 +71,10 @@ build.bat
 ## Releasing
 
 ```bash
-build.bat                          # produces muten.zip
+build.bat 2.0.0                    # produces muten.zip (version defaults to the latest tag)
 git add muten.zip
-git commit -m "v1.1.0"
-git tag v1.1.0
+git commit -m "v2.0.0"
+git tag v2.0.0
 git push && git push --tags        # triggers GitHub Actions
 ```
 

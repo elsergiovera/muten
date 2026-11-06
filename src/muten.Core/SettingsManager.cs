@@ -1,3 +1,4 @@
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -8,6 +9,9 @@ public record ManagedApp
     public string ProcessName { get; set; } = string.Empty;
     public string? ExePath { get; set; }
     public string DisplayName { get; set; } = string.Empty;
+
+    // Background volume in percent of the app's own volume; 0 mutes it
+    public int BackgroundVolume { get; set; }
 }
 
 public record MutenSettings
@@ -15,20 +19,27 @@ public record MutenSettings
     public List<ManagedApp> ManagedApps { get; set; } = [];
     public bool AutoMuteEnabled { get; set; } = true;
     public bool NotificationsEnabled { get; set; } = true;
+    public int FadeMs { get; set; } = 150;
+    public int GraceMs { get; set; } = 300;
+
+    // Global hotkey that toggles pause, e.g. "Ctrl+Alt+M"; empty disables it
+    public string PauseHotkey { get; set; } = "Ctrl+Alt+M";
 }
 
 public static class SettingsManager
 {
-    private static readonly string SettingsDir =
+    // %APPDATA%\muten; settable so tests can point it at a scratch folder
+    public static string DataDir { get; set; } =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "muten");
 
-    private static readonly string SettingsPath =
-        Path.Combine(SettingsDir, "settings.json");
+    private static string SettingsPath => Path.Combine(DataDir, "settings.json");
 
-    private static readonly JsonSerializerOptions JsonOptions = new()
+    internal static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        // Keeps "Ctrl+Alt+M" readable instead of escaping the "+"; these files are never embedded in HTML
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
     public static MutenSettings Load()
@@ -89,7 +100,7 @@ public static class SettingsManager
 
     public static void Save(MutenSettings settings)
     {
-        Directory.CreateDirectory(SettingsDir);
+        Directory.CreateDirectory(DataDir);
         var json = JsonSerializer.Serialize(settings, JsonOptions);
         File.WriteAllText(SettingsPath, json);
     }
