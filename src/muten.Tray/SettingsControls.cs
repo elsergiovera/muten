@@ -85,10 +85,11 @@ internal class ToggleSwitch : Control
     protected override void OnLostFocus(EventArgs e) { base.OnLostFocus(e); Invalidate(); }
 }
 
-// 0–100 slider in steps of 5 with a red fill and a round thumb
+// 0–Maximum slider (default 0–100 in steps of 5) with a red fill and a round thumb
 internal class VolumeSlider : Control
 {
-    public const int Step = 5;
+    public int Step { get; init; } = 5;
+    public int Maximum { get; init; } = 100;
     private int _value;
     private bool _dragging;
 
@@ -107,7 +108,7 @@ internal class VolumeSlider : Control
         get => _value;
         set
         {
-            int snapped = Math.Clamp((int)Math.Round(value / (double)Step) * Step, 0, 100);
+            int snapped = Math.Clamp((int)Math.Round(value / (double)Step) * Step, 0, Maximum);
             if (snapped == _value) return;
             _value = snapped;
             Invalidate();
@@ -128,7 +129,7 @@ internal class VolumeSlider : Control
         var track = new RectangleF(TrackLeft, cy - trackH / 2, TrackWidth, trackH);
         Theme.FillRound(g, Color.FromArgb(221, 221, 221), track, trackH / 2);
 
-        float x = TrackLeft + TrackWidth * _value / 100f;
+        float x = TrackLeft + TrackWidth * _value / (float)Maximum;
         if (_value > 0)
             Theme.FillRound(g, Theme.Red, new RectangleF(track.X, track.Y, x - track.X, trackH), trackH / 2);
 
@@ -144,7 +145,7 @@ internal class VolumeSlider : Control
     private void SetFromX(int x)
     {
         if (TrackWidth <= 0) return;
-        Value = (int)Math.Round((x - TrackLeft) / TrackWidth * 100);
+        Value = (int)Math.Round((x - TrackLeft) / TrackWidth * Maximum);
     }
 
     protected override void OnMouseDown(MouseEventArgs e)
@@ -187,10 +188,10 @@ internal class VolumeSlider : Control
         {
             case Keys.Left or Keys.Down: Value -= Step; break;
             case Keys.Right or Keys.Up: Value += Step; break;
-            case Keys.PageDown: Value -= 25; break;
-            case Keys.PageUp: Value += 25; break;
+            case Keys.PageDown: Value -= Math.Max(Step, Maximum / 4); break;
+            case Keys.PageUp: Value += Math.Max(Step, Maximum / 4); break;
             case Keys.Home: Value = 0; break;
-            case Keys.End: Value = 100; break;
+            case Keys.End: Value = Maximum; break;
             default: return;
         }
         e.Handled = true;

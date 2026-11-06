@@ -29,10 +29,10 @@ Download `muten.zip` from the [latest release](https://github.com/elsergiovera/m
   <img src="src/assets/img/tray.png" alt="tray menu" />
 </p>
 
-1. Click the tray icon to see audio sessions
+1. Click the tray icon to see the apps playing sound
 2. Click an app to **muten** it (highlighted)
-3. **Mutened** apps are only audible when their window is active
-4. Alt-tab away → the **mutened** app mutes. Alt-tab back → it unmutes
+3. Set its background volume in **Settings**: **muted**, or a lower volume like 25%
+4. Alt-tab away → the app goes quiet. Alt-tab back → full volume again
 
 Use **Pause** / **Resume** in the menu (or the pause key) to temporarily disable auto-mute. Open **Settings** to set each app's background volume and tune fade, wait and notifications.
 
@@ -44,7 +44,7 @@ Open **Settings** from the tray menu:
 |---|---|
 | **Apps** | The **mutened** apps. Add one with **+ Add** (pick a running app or browse for an `.exe`) and set its **volume in the background** (0% = fully muted) |
 | **Fade** | How the volume changes when you switch windows: Off, Short or Long |
-| **Wait** | A short delay before muting (Off, 0.3 s, 0.6 s, 1 s), so quick alt-tabs and pop-ups don't cut the sound |
+| **Wait** | A short delay before muting (slider from Off to 1 s, in 0.1 s steps), so quick alt-tabs and pop-ups don't cut the sound |
 | **Notifications** | Show a small toast when an app gets **mutened** |
 | **Start with Windows** | Launch muten when you sign in |
 | **Pause key** | Global shortcut to pause / resume auto-mute (default `Ctrl+Alt+M`) |

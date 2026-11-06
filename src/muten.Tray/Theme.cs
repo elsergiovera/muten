@@ -100,16 +100,28 @@ internal static class Theme
         });
     }
 
+    // A cog: 8 square-ish teeth around a solid ring, with a round hole in the middle
     public static void GearGlyph(Graphics g, Color color, RectangleF r)
     {
-        float stroke = Math.Max(1.2f, r.Width * 0.14f);
-        using var pen = new Pen(color, stroke);
-        float outer = r.Width * 0.36f;
+        const int teeth = 8;
         var c = new PointF(r.X + r.Width / 2, r.Y + r.Height / 2);
-        g.DrawEllipse(pen, c.X - outer, c.Y - outer, outer * 2, outer * 2);
+        float tip = r.Width * 0.5f, root = r.Width * 0.36f, hole = r.Width * 0.15f;
+        double step = Math.PI * 2 / teeth, half = step * 0.22;
+        var points = new List<PointF>();
+        PointF At(double angle, float radius) => new(c.X + (float)(Math.Cos(angle) * radius), c.Y + (float)(Math.Sin(angle) * radius));
+        for (int i = 0; i < teeth; i++)
+        {
+            double a = i * step;
+            points.Add(At(a - half * 1.35, root));
+            points.Add(At(a - half, tip));
+            points.Add(At(a + half, tip));
+            points.Add(At(a + half * 1.35, root));
+        }
+        using var path = new GraphicsPath(FillMode.Alternate);
+        path.AddPolygon(points.ToArray());
+        path.AddEllipse(c.X - hole, c.Y - hole, hole * 2, hole * 2);
         using var brush = new SolidBrush(color);
-        float inner = r.Width * 0.12f;
-        g.FillEllipse(brush, c.X - inner, c.Y - inner, inner * 2, inner * 2);
+        g.FillPath(brush, path);
     }
 
     public static void PowerGlyph(Graphics g, Color color, RectangleF r)

@@ -44,10 +44,10 @@ public class AboutForm : Form
         var stepY = heading.Bottom + 8;
         var steps = new[]
         {
-            "Click the tray icon to see audio sessions",
+            "Click the tray icon to see your apps",
             "Click an app to muten it",
-            "Mutened apps mute when inactive",
-            "Switch back to unmute",
+            "Set its background volume in Settings",
+            "Switch back to hear it at full volume",
         };
 
         for (var i = 0; i < steps.Length; i++)

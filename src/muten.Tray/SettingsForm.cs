@@ -14,7 +14,6 @@ public class SettingsForm : Form
     }
 
     private static readonly Choice[] FadeChoices = [new("Off", 0), new("Short", 150), new("Long", 400)];
-    private static readonly Choice[] WaitChoices = [new("Off", 0), new("0.3 s", 300), new("0.6 s", 600), new("1 s", 1000)];
 
     private readonly ISettingsHost _host;
     private readonly Label _appsHeader;
@@ -23,7 +22,9 @@ public class SettingsForm : Form
     private readonly Label _behaviorHeader;
     private readonly Control[] _behavior;
     private readonly ComboBox _fade;
-    private readonly ComboBox _wait;
+    private readonly Panel _wait;
+    private readonly VolumeSlider _waitSlider;
+    private readonly Label _waitValue;
     private readonly ToggleSwitch _notifications;
     private readonly ToggleSwitch _startup;
     private readonly HotkeyBox _hotkey;
@@ -86,10 +87,19 @@ public class SettingsForm : Form
             if (!_updating && _fade.SelectedItem is Choice c) _host.FadeMs = c.Ms;
         };
 
-        _wait = Combo(WaitChoices, _host.GraceMs);
-        _wait.SelectedIndexChanged += (_, _) =>
+        // Wait: a 0–1 s slider in 0.1 s steps, with the value next to it
+        _waitSlider = new VolumeSlider { Maximum = 10, Step = 1, Size = new Size(S(70), S(22)), BackColor = Color.White, AccessibleName = "Wait before muting" };
+        _waitValue = new Label { AutoSize = false, Size = new Size(S(38), S(22)), Font = _labelFont, TextAlign = ContentAlignment.MiddleRight, ForeColor = Color.FromArgb(68, 68, 68) };
+        _wait = new Panel { Size = new Size(S(70 + 38 + 2), S(22)), BackColor = Color.White };
+        _waitSlider.Location = new Point(0, 0);
+        _waitValue.Location = new Point(S(72), 0);
+        _wait.Controls.AddRange([_waitSlider, _waitValue]);
+        _waitSlider.Value = (int)Math.Round(Math.Clamp(_host.GraceMs, 0, 1000) / 100.0);
+        ShowWait();
+        _waitSlider.ValueChanged += (_, _) =>
         {
-            if (!_updating && _wait.SelectedItem is Choice c) _host.GraceMs = c.Ms;
+            ShowWait();
+            _host.GraceMs = _waitSlider.Value * 100;
         };
         var waitInfo = new InfoIcon();
         _toolTip.SetToolTip(waitInfo, "Quick alt-tabs and pop-ups won't cut the sound");
@@ -170,6 +180,8 @@ public class SettingsForm : Form
         AutoSize = true,
         BackColor = Color.White,
     };
+
+    private void ShowWait() => _waitValue.Text = _waitSlider.Value == 0 ? "Off" : $"{_waitSlider.Value / 10.0:0.0} s";
 
     private ComboBox Combo(Choice[] choices, int currentMs)
     {
@@ -279,6 +291,10 @@ public class SettingsForm : Form
                 row.VolumeChanged += (r, percent) => _host.SetBackgroundVolume(r.ProcessName, percent);
                 row.RemoveClicked += r =>
                 {
+                    var answer = MessageBox.Show(this,
+                        $"Remove {r.DisplayName} from muten?\n\nIt will play at its normal volume again, even in the background.",
+                        "Remove app", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                    if (answer != DialogResult.Yes) return;
                     _host.RemoveApp(r.ProcessName);
                     RebuildApps();
                 };

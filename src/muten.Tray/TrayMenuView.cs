@@ -24,7 +24,7 @@ public class TrayMenuModel
 // Clicks inside a hosted control never close the menu, so toggling apps keeps it open.
 public class TrayMenuView : Control
 {
-    private enum HitKind { App, Add, Pause, Settings, Quit, Install }
+    private enum HitKind { App, More, Add, Pause, Settings, Quit, Install }
 
     private record Hit(HitKind Kind, Rectangle Bounds, TrayAppRow? Row = null);
 
@@ -104,9 +104,17 @@ public class TrayMenuView : Control
 
         if (_model.Paused) y += S(StripH);
 
-        foreach (var row in _model.Apps)
+        // Very long lists stop at about half the screen; the rest are summed up in a "+N more" row (managed apps come first)
+        int maxRows = Math.Max(6, Screen.FromControl(this).WorkingArea.Height / 2 / S(RowH));
+        int shown = _model.Apps.Count > maxRows ? maxRows - 1 : _model.Apps.Count;
+        foreach (var row in _model.Apps.Take(shown))
         {
             _hits.Add(new Hit(HitKind.App, new Rectangle(0, y, w, S(RowH)), row));
+            y += S(RowH);
+        }
+        if (shown < _model.Apps.Count)
+        {
+            _hits.Add(new Hit(HitKind.More, new Rectangle(0, y, w, S(RowH))));
             y += S(RowH);
         }
         if (_model.Apps.Count == 0) y += S(RowH); // "Nothing is playing"
@@ -163,6 +171,9 @@ public class TrayMenuView : Control
             {
                 case HitKind.App:
                     DrawAppRow(g, hit);
+                    break;
+                case HitKind.More:
+                    DrawMoreRow(g, hit);
                     break;
                 case HitKind.Add:
                     if (_model.Apps.Count == 0)
@@ -246,6 +257,16 @@ public class TrayMenuView : Control
         }
 
         Theme.DrawText(g, row.Name, _font, dim ? Theme.TextDim : Theme.Text, new Rectangle(textLeft, r.Y, right - textLeft, r.Height));
+    }
+
+    private void DrawMoreRow(Graphics g, Hit hit)
+    {
+        var r = hit.Bounds;
+        if (hit == _hover)
+            using (var brush = new SolidBrush(Theme.Hover)) g.FillRectangle(brush, r);
+        int hidden = _model.Apps.Count - _hits.Count(h => h.Kind == HitKind.App);
+        int textLeft = r.X + S(8) + S(16) + S(7);
+        Theme.DrawText(g, $"+{hidden} more · open Settings", _font, Theme.TextDim, new Rectangle(textLeft, r.Y, r.Right - textLeft - S(8), r.Height));
     }
 
     private void DrawEmptyRow(Graphics g, Rectangle r)
@@ -374,7 +395,7 @@ public class TrayMenuView : Control
             case HitKind.App: AppClicked?.Invoke(hit.Row!); break;
             case HitKind.Add: AddClicked?.Invoke(); break;
             case HitKind.Pause: PauseClicked?.Invoke(); break;
-            case HitKind.Settings: SettingsClicked?.Invoke(); break;
+            case HitKind.Settings or HitKind.More: SettingsClicked?.Invoke(); break;
             case HitKind.Quit: QuitClicked?.Invoke(); break;
             case HitKind.Install when !_model.Installing: InstallClicked?.Invoke(); break;
         }
