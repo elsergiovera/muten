@@ -425,14 +425,7 @@ public class SettingsForm : Form
         }
         else
         {
-            var (text, color) = state switch
-            {
-                UpdateState.UpToDate => ("up to date", Theme.GreenText),
-                UpdateState.Checking => ("checking for updates…", grey),
-                UpdateState.Installing => ("installing update…", Theme.GreenText),
-                UpdateState.CheckFailed => ("couldn't check for updates", grey),
-                _ => ("dev build", grey),
-            };
+            var (text, color) = UpdateStatus();
             _footer.Controls.Add(FooterLabel(text, color));
         }
 
@@ -446,6 +439,21 @@ public class SettingsForm : Form
         _footer.Controls.Add(about);
 
         LayoutFooterStatus();
+    }
+
+    // The update state as shown in the footer and the About window
+    private (string Text, Color Color) UpdateStatus()
+    {
+        var grey = Color.FromArgb(136, 136, 136);
+        return _host.UpdateState switch
+        {
+            UpdateState.UpToDate => ("up to date", Theme.GreenText),
+            UpdateState.Checking => ("checking for updates…", grey),
+            UpdateState.Available => ($"update {_host.AvailableVersion} available", Theme.GreenText),
+            UpdateState.Installing => ("installing update…", Theme.GreenText),
+            UpdateState.CheckFailed => ("couldn't check for updates", grey),
+            _ => ("dev build", grey),
+        };
     }
 
     private Label FooterLabel(string text, Color color) => new()

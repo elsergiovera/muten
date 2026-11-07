@@ -24,6 +24,7 @@
     <EmbeddedResource Include="..\assets\img\speaker_muted.png" LogicalName="speaker_muted.png" />
     <EmbeddedResource Include="..\assets\img\startup.png" LogicalName="startup.png" />
     <EmbeddedResource Include="..\assets\img\notification.png" LogicalName="notification.png" />
+    <EmbeddedResource Include="..\assets\font\Teko-SemiBold.ttf" LogicalName="Teko-SemiBold.ttf" />
   </ItemGroup>
 
 </Project>
