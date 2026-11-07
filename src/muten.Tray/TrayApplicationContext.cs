@@ -433,6 +433,17 @@ public class TrayApplicationContext : ApplicationContext, ISettingsHost
 
     public void InstallUpdate() => _ = InstallUpdateAsync();
 
+    public void CheckForUpdates()
+    {
+        if (_updateState is UpdateState.Checking or UpdateState.Installing or UpdateState.Disabled) return;
+
+        // Restart the timer so the next automatic check is a full interval after this one
+        _updateTimer.Stop();
+        _updateTimer.Interval = (int)UpdateCheckInterval.TotalMilliseconds;
+        _updateTimer.Start();
+        _ = CheckForUpdatesAsync();
+    }
+
     // ---- updates
 
     private static Version CurrentVersion =>

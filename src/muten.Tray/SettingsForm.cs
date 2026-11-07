@@ -423,6 +423,15 @@ public class SettingsForm : Form
             _toolTip.SetToolTip(link, "Install the update and restart muten");
             _footer.Controls.Add(link);
         }
+        else if (state is UpdateState.UpToDate or UpdateState.CheckFailed)
+        {
+            // Click the status to check right away instead of waiting for the daily check
+            var (text, color) = UpdateStatus();
+            var link = FooterLink(text, color);
+            link.LinkClicked += (_, _) => _host.CheckForUpdates();
+            _toolTip.SetToolTip(link, "Check for updates now");
+            _footer.Controls.Add(link);
+        }
         else
         {
             var (text, color) = UpdateStatus();

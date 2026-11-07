@@ -41,6 +41,9 @@ public interface ISettingsHost
     string? AvailableVersion { get; }
     void InstallUpdate();
 
+    // Checks for an update now (no-op while a check or install is running, or in a dev build)
+    void CheckForUpdates();
+
     // Update state or managed apps changed outside the Settings window (e.g. from the tray menu)
     event Action? StatusChanged;
 }
