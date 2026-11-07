@@ -15,7 +15,7 @@ public class TrayApplicationContext : ApplicationContext, ISettingsHost
     private readonly AutoMuteService _autoMute;
     private readonly ForegroundWatcher _watcher;
     private readonly SynchronizationContext _uiContext;
-    private readonly ContextMenuStrip _menu;
+    private readonly TrayPopup _menu;
     private readonly TrayMenuView _menuView;
     private readonly GlobalHotkey _hotkey;
     private readonly Icon _activeIcon;
@@ -84,15 +84,13 @@ public class TrayApplicationContext : ApplicationContext, ISettingsHost
         _menuView.QuitClicked += Exit;
         _menuView.InstallClicked += () => _ = InstallUpdateAsync();
 
-        _menu = CreateMenuStrip(_menuView);
-        _menu.Opening += (_, _) => RefreshMenu();
+        _menu = new TrayPopup(_menuView);
 
         _notifyIcon = new NotifyIcon
         {
             Icon = _autoMute.Enabled ? _activeIcon : _pausedIcon,
             Text = _autoMute.Enabled ? "muten" : "muten (paused)",
             Visible = true,
-            ContextMenuStrip = _menu,
         };
         _notifyIcon.MouseClick += OnTrayClick;
 
@@ -115,43 +113,28 @@ public class TrayApplicationContext : ApplicationContext, ISettingsHost
             _updateTimer.Start();
         }
 
-        StartupToast.Show(afterUpdate ? $"muten was updated to {Version}." : "Muten is running in the background.");
-    }
-
-    // Shared by the tray and the screenshot harness
-    public static ContextMenuStrip CreateMenuStrip(TrayMenuView view)
-    {
-        var menu = new TrayMenuStrip
-        {
-            Renderer = new TrayMenuRenderer(),
-            BackColor = Color.White,
-            DropShadowEnabled = true,
-        };
-        var host = new ToolStripControlHost(view)
-        {
-            AutoSize = false,
-            Margin = Padding.Empty,
-            Padding = Padding.Empty,
-            Size = view.Size,
-        };
-        view.SizeChanged += (_, _) => host.Size = view.Size;
-        menu.Items.Add(host);
-
-        // Create both windows now (hidden), so the first popup never shows before the view can paint
-        menu.CreateControl();
-        if (!view.IsHandleCreated) _ = view.Handle;
-        return menu;
+        if (afterUpdate) StartupToast.Show($"muten was updated to {Version}.", () => ShowSettings(openPicker: false));
+        else StartupToast.Show("Muten is running in the background.", ShowMainScreen);
     }
 
     private void OnTrayClick(object? sender, MouseEventArgs e)
     {
-        // Show context menu on any click (left, middle, etc.), not just right-click
-        if (e.Button != MouseButtons.Right)
+        // Any button opens the main screen. Clicking the icon while it is open closes it: the press on the taskbar
+        // already closed it (it lost focus), so don't reopen it right away.
+        if (_menu.Visible || DateTime.UtcNow - _menu.LastDeactivated < TimeSpan.FromMilliseconds(400))
         {
-            var mi = typeof(NotifyIcon).GetMethod("ShowContextMenu",
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            mi?.Invoke(_notifyIcon, null);
+            _menu.Hide();
+            return;
         }
+        RefreshMenu();
+        _menu.ShowAt(Cursor.Position);
+    }
+
+    // Opens the main screen from a notification: at the bottom-right corner, where notifications appear
+    private void ShowMainScreen()
+    {
+        RefreshMenu();
+        _menu.ShowAt(null);
     }
 
     private void OnForegroundChanged(string processName, int pid, string? exePath)
@@ -163,7 +146,7 @@ public class TrayApplicationContext : ApplicationContext, ISettingsHost
     {
         if (!_settings.NotificationsEnabled || names.Count == 0) return;
         var text = string.Join(", ", names) + " mutened";
-        _uiContext.Post(_ => StartupToast.Show(text), null);
+        _uiContext.Post(_ => StartupToast.Show(text, ShowMainScreen), null);
     }
 
     // ---- tray menu
@@ -203,22 +186,8 @@ public class TrayApplicationContext : ApplicationContext, ISettingsHost
         };
     }
 
-    private void RefreshMenu()
-    {
-        var before = _menu.Bounds;
-        bool visible = _menu.Visible;
-
-        _menuView.SetModel(BuildMenuModel());
-
-        if (visible)
-        {
-            _menu.PerformLayout();
-            // A menu opened upwards from the tray grows/shrinks at the top so it stays above the taskbar
-            var screen = Screen.FromRectangle(before).Bounds;
-            if (_menu.Height != before.Height && before.Top + before.Height / 2 > screen.Top + screen.Height / 2)
-                _menu.Top = before.Bottom - _menu.Height;
-        }
-    }
+    // The window follows the view's size, keeping its bottom edge when it opened above the tray
+    private void RefreshMenu() => _menuView.SetModel(BuildMenuModel());
 
     private void ToggleManaged(TrayAppRow row)
     {
@@ -265,12 +234,12 @@ public class TrayApplicationContext : ApplicationContext, ISettingsHost
     {
         TogglePause();
         if (_menu.Visible) RefreshMenu();
-        StartupToast.Show(_autoMute.Enabled ? "muten resumed." : "muten paused. Everything plays.");
+        StartupToast.Show(_autoMute.Enabled ? "muten resumed." : "muten paused. Everything plays.", ShowMainScreen);
     }
 
     private void ShowSettings(bool openPicker)
     {
-        _menu.Close();
+        _menu.Hide();
 
         if (_settingsForm is null || _settingsForm.IsDisposed)
         {
@@ -329,7 +298,7 @@ public class TrayApplicationContext : ApplicationContext, ISettingsHost
         if (_hotkeySuspended) return;
         var hotkey = Hotkey.Parse(_settings.PauseHotkey);
         if (!_hotkey.TrySet(hotkey, out var error) && reportFailure)
-            StartupToast.Show($"Pause key: {error}");
+            StartupToast.Show($"Pause key: {error}", () => ShowSettings(openPicker: false));
     }
 
     // ---- ISettingsHost

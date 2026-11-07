@@ -20,8 +20,8 @@ public class TrayMenuModel
     public bool Installing { get; init; }
 }
 
-// The whole tray menu as one owner-drawn control, hosted in the ContextMenuStrip through a ToolStripControlHost.
-// Clicks inside a hosted control never close the menu, so toggling apps keeps it open.
+// The whole main screen as one owner-drawn control, hosted in the TrayPopup window.
+// Clicking it never closes the window, so toggling apps keeps it open.
 public class TrayMenuView : Control
 {
     private enum HitKind { App, More, Add, Pause, Settings, Quit, Install }
@@ -409,54 +409,6 @@ public class TrayMenuView : Control
             _button.Dispose(); _buttonBold.Dispose(); _strip.Dispose(); _stripBold.Dispose();
         }
         base.Dispose(disposing);
-    }
-}
-
-// ContextMenuStrip sized to exactly wrap its hosted view plus a 1px border. A plain ContextMenuStrip re-applies
-// menu padding (room for images/check marks) and adds width for text and shortcut columns.
-public sealed class TrayMenuStrip : ContextMenuStrip
-{
-    private static readonly Padding BorderPadding = new(1);
-
-    public TrayMenuStrip()
-    {
-        ShowImageMargin = false;
-        ShowCheckMargin = false;
-        LayoutStyle = ToolStripLayoutStyle.Table;
-        Padding = BorderPadding;
-    }
-
-    protected override Padding DefaultPadding => BorderPadding;
-
-    protected override void OnLayout(LayoutEventArgs e)
-    {
-        if (Padding != BorderPadding) Padding = BorderPadding;
-        base.OnLayout(e);
-    }
-
-    // ToolStripControlHost does not always create its control's window when the popup opens; without one the
-    // view never paints and the menu shows up empty
-    protected override void OnOpened(EventArgs e)
-    {
-        foreach (var host in Items.OfType<ToolStripControlHost>())
-        {
-            var control = host.Control;
-            if (!control.IsHandleCreated)
-            {
-                control.CreateControl();
-                if (!control.IsHandleCreated) _ = control.Handle; // forces creation even if not yet marked visible
-                control.Visible = true;
-            }
-            control.Invalidate();
-        }
-        base.OnOpened(e);
-    }
-
-    public override Size GetPreferredSize(Size proposedSize)
-    {
-        if (Items.Count == 0) return base.GetPreferredSize(proposedSize);
-        var item = Items[0].Size;
-        return new Size(item.Width + BorderPadding.Horizontal, item.Height + BorderPadding.Vertical);
     }
 }
 

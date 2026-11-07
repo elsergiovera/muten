@@ -5,8 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace muten.Tray;
 
-// About window, styled like Settings: the app card (logo, MUTEN in Teko, tagline), how it works with the tray
-// screenshot, and a footer with Done
+// About window, styled like Settings: the app card (logo, MUTEN in Teko, tagline), how it works, and a footer with Done
 public class AboutForm : Form
 {
     private const int ClientW = 372, Pad = 18;
@@ -72,10 +71,7 @@ public class AboutForm : Form
         Controls.AddRange([logo, name, tagline]);
 
         // ---- how it works
-        var screenshot = AppIcons.LoadEmbedded("tray.png");
-        int imgW = screenshot?.Width ?? 0, imgH = screenshot?.Height ?? 0;
-        int inner = Math.Max(S(ClientW) - 2 * left, imgW + S(22));
-        int clientW = inner + 2 * left;
+        int clientW = S(ClientW);
 
         // Center the app card (logo + name + tagline) across the window
         int cardW = name.Right - logo.Left > tagline.Right - logo.Left ? name.Right - logo.Left : tagline.Right - logo.Left;
@@ -112,27 +108,7 @@ public class AboutForm : Form
             Controls.AddRange([badge, step]);
             y += rowH + S(5);
         }
-        y += S(9);
-
-        var shotPanel = new Panel
-        {
-            BackColor = Color.FromArgb(246, 246, 246),
-            Location = new Point(left, y),
-            Size = new Size(inner, imgH + S(20)),
-        };
-        shotPanel.Paint += (_, e) =>
-        {
-            using var pen = new Pen(Color.FromArgb(234, 234, 234));
-            e.Graphics.DrawRectangle(pen, 0, 0, shotPanel.Width - 1, shotPanel.Height - 1);
-        };
-        shotPanel.Controls.Add(new PictureBox
-        {
-            Image = screenshot,
-            SizeMode = PictureBoxSizeMode.AutoSize,
-            Location = new Point((inner - imgW) / 2, S(10)),
-        });
-        Controls.Add(shotPanel);
-        y = shotPanel.Bottom + S(16);
+        y += S(11);
 
         // ---- footer: Done
         Controls.Add(Line(0, y, clientW));

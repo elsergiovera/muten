@@ -23,9 +23,10 @@ public static class StartupToast
         protected override bool ShowWithoutActivation => true;
     }
     /// <summary>
-    /// Shows a toast and returns immediately (non-blocking). The toast fades out on its own.
+    /// Shows a toast and returns immediately (non-blocking). The toast fades out on its own, but stays while the
+    /// pointer is over it. With onClick, clicking it closes it and runs onClick (e.g. opens the main screen).
     /// </summary>
-    public static void Show(string message)
+    public static void Show(string message, Action? onClick = null)
     {
         var toast = new NoActivateForm
         {
@@ -75,13 +76,44 @@ public static class StartupToast
         var screen = Screen.PrimaryScreen!.WorkingArea;
         toast.Location = new Point(screen.Right - toast.Width - 16, screen.Bottom - toast.Height - 16);
 
-        toast.Show();
-
-        // Fade in, hold, fade out
         var step = 0;
         var timer = new System.Windows.Forms.Timer { Interval = 30 };
+
+        void Finish()
+        {
+            timer.Stop();
+            timer.Dispose();
+            toast.Close();
+            toast.Dispose();
+        }
+
+        if (onClick is not null)
+        {
+            void Clicked(object? sender, EventArgs e)
+            {
+                if (toast.IsDisposed) return;
+                Finish();
+                onClick();
+            }
+            foreach (Control c in new Control[] { toast, iconBox, label })
+            {
+                c.Cursor = Cursors.Hand;
+                c.Click += Clicked;
+            }
+        }
+
+        toast.Show();
+
+        // Fade in, hold, fade out. While the pointer is over it, it stays fully visible; after the pointer leaves it
+        // holds a little longer before fading.
         timer.Tick += (_, _) =>
         {
+            if (step >= 10 && toast.Bounds.Contains(Cursor.Position))
+            {
+                step = Math.Min(step, 60);
+                toast.Opacity = 1;
+                return;
+            }
             step++;
             if (step <= 10)
             {
@@ -97,10 +129,7 @@ public static class StartupToast
             }
             else
             {
-                timer.Stop();
-                timer.Dispose();
-                toast.Close();
-                toast.Dispose();
+                Finish();
             }
         };
         timer.Start();
