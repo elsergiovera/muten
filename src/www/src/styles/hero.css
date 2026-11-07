@@ -37,9 +37,14 @@
 }
 
 .left__title {
-  font-size: 4.625rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: "Teko", "Inter", sans-serif;
+  color: var(--accent);
+  font-size: 6rem;
+  font-weight: 600;
+  line-height: 0.8;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  padding-top: 0.12em;
 }
 
 .left__tagline {
@@ -68,7 +73,7 @@
 
 .left__features li::before {
   content: "—";
-  color: var(--gold);
+  color: var(--accent);
   margin-right: 0.5rem;
 }
 
@@ -83,8 +88,8 @@
   justify-content: center;
   gap: 0.5rem;
   min-width: 10rem;
-  background: var(--gold);
-  color: var(--bg);
+  background: var(--accent);
+  color: #fff;
   font-weight: 600;
   font-size: 1.1rem;
   padding: 0.8rem 2rem;
@@ -94,18 +99,18 @@
 }
 
 .left__cta:hover {
-  background: var(--gold-hover);
-  color: var(--bg);
+  background: var(--accent-hover);
+  color: #fff;
 }
 
 .left__cta--secondary {
   background: transparent;
   color: var(--text);
-  border: 1px solid color-mix(in srgb, var(--gold) 50%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
 }
 
 .left__cta--secondary:hover {
-  background: color-mix(in srgb, var(--gold) 10%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
   color: var(--text);
-  border-color: var(--gold);
+  border-color: var(--accent);
 }

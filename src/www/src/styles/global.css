@@ -1,8 +1,16 @@
+/* Teko SemiBold (SIL Open Font License, see /font/Teko-OFL.txt), same as the app's About window */
+@font-face {
+  font-family: "Teko";
+  src: url("/font/Teko-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-display: swap;
+}
+
 :root {
   --bg: #0e0e0e;
   --surface: #1a1a1a;
-  --gold: #c8a84e;
-  --gold-hover: #d4b85e;
+  --accent: #e04848; /* the app's red */
+  --accent-hover: #ea5c5c;
   --red: #cc3333;
   --text: #f0f0f0;
   --text-secondary: #888888;
@@ -39,10 +47,10 @@ img {
 }
 
 a {
-  color: var(--gold);
+  color: var(--accent);
   text-decoration: none;
 }
 
 a:hover {
-  color: var(--gold-hover);
+  color: var(--accent-hover);
 }

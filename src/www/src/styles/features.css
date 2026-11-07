@@ -44,8 +44,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--gold);
-  color: var(--bg);
+  background: var(--accent);
+  color: #fff;
   font-size: 0.7rem;
   font-weight: 700;
   border-radius: 50%;
@@ -66,6 +66,18 @@
     overflow-y: auto;
   }
 
+  /* the columns grow with their content and the split scrolls (centering an overflowing column cut off its top) */
+  .left,
+  .right {
+    flex: none;
+    justify-content: flex-start;
+  }
+
+  .split {
+    min-height: 0;
+    justify-content: flex-start;
+  }
+
   .left,
   .right {
     max-width: 100%;
@@ -78,7 +90,7 @@
   }
 
   .left__title {
-    font-size: 3.5rem;
+    font-size: 4.5rem;
   }
 
   .left__desc {
