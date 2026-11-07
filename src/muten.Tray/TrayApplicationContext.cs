@@ -7,6 +7,7 @@ namespace muten.Tray;
 public class TrayApplicationContext : ApplicationContext, ISettingsHost
 {
     private static readonly TimeSpan FirstUpdateCheck = TimeSpan.FromSeconds(15);
+    private static readonly TimeSpan ManualCheckMinimum = TimeSpan.FromSeconds(1.2);
     private static readonly TimeSpan UpdateCheckInterval = TimeSpan.FromHours(24);
 
     private readonly NotifyIcon _notifyIcon;
@@ -441,7 +442,9 @@ public class TrayApplicationContext : ApplicationContext, ISettingsHost
         _updateTimer.Stop();
         _updateTimer.Interval = (int)UpdateCheckInterval.TotalMilliseconds;
         _updateTimer.Start();
-        _ = CheckForUpdatesAsync();
+        // Keep "checking for updates…" on screen for a moment: GitHub answers in a fraction of a second, and a
+        // status that flips straight back looks like the click did nothing
+        _ = CheckForUpdatesAsync(ManualCheckMinimum);
     }
 
     // ---- updates
@@ -478,14 +481,22 @@ public class TrayApplicationContext : ApplicationContext, ISettingsHost
         retry.Start();
     }
 
-    private async Task CheckForUpdatesAsync()
+    private async Task CheckForUpdatesAsync(TimeSpan minimum = default)
     {
         if (_updateState is UpdateState.Installing or UpdateState.Disabled) return;
         if (_updateState != UpdateState.Available) SetUpdateState(UpdateState.Checking);
 
+        var shown = System.Diagnostics.Stopwatch.StartNew();
+        async Task WaitMinimum()
+        {
+            var remaining = minimum - shown.Elapsed;
+            if (remaining > TimeSpan.Zero) await Task.Delay(remaining);
+        }
+
         try
         {
             var latest = await Updater.GetLatestAsync(_http);
+            await WaitMinimum();
             if (latest is not null && Updater.IsNewer(latest.Version, CurrentVersion))
             {
                 _latest = latest;
@@ -499,6 +510,7 @@ public class TrayApplicationContext : ApplicationContext, ISettingsHost
         }
         catch
         {
+            await WaitMinimum();
             SetUpdateState(_latest is not null ? UpdateState.Available : UpdateState.CheckFailed);
         }
     }
